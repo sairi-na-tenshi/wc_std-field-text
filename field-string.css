@@ -15,10 +15,10 @@ i\:field-string {
 i\:field-string input {
 	display: block;
 	width: 100%;
-	font-family:  monospace;
 	padding: 5px;
 	border-width: 0;
-	line-height: 1;
+	font: 16px/1 'Lucida Console', monospace;
+	background: none;
 
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;

@@ -3,4 +3,5 @@ i\:field-text-content,
 	text-align: left;
 	white-space: pre-wrap;
 	background: white;
+	overflow: auto;
 }
