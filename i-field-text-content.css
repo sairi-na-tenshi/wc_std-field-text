@@ -1,5 +1,6 @@
-i\:field-text-content,
-.i-field-text-content {
+i\:field-text-content {
+	padding: 2%;
+	display: block;
 	text-align: left;
 	white-space: pre-wrap;
 	background: white;

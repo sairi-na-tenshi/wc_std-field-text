@@ -1,26 +1,12 @@
-CComponent( new function(){
-this.tag= 'i:field-text'
-this.factory= function( el ){
-	var lang= el.getAttribute( 'i:lang' ) || 'text'
+CComponent( 'i:field-text', function( el ){
+	var lang= CHiqus( el.className ).get( 'lang' )
 	var input= el.getElementsByTagName( 'textarea' )[0]
 	input.style.display= 'none'
-	var editor= document.createElement( 'iframe' )
-	editor.frameBorder= 0
+	var editor= document.createElement( 'i:field-text-content' )
+	editor.innerHTML= input.value
+	editor.contentEditable= true
 	el.appendChild( editor )
-	var win= editor.contentWindow
-	var doc= win.document
-	var sheets= document.styleSheets
-	var styles= []
-	for( var i= 0; i < sheets.length; ++i ){
-		styles.push( '<link rel="stylesheet" href="' + sheets[i].href + '" />' )
-	}
-	doc.open()
-	doc.write( '<!doctype html><html class="i-field-text-content"><head>' + styles.join('') + '<body>' + input.value )
-	doc.close()
-	doc.designMode= 'on'
-	var body= FPoly([ function(){
-		return doc.getElementsByTagName('body')[0]
-	}])
+
 	var html2text= function( str ){
 		noLFCR:     str= str.split( /[\n\r]+/ ).join( '' )
 		BR2CR:      str= str.replace( /<br ?\/?>/gi, '\n' )
@@ -31,13 +17,14 @@ this.factory= function( el ){
 		decodeAMP:  str= str.split( '&amp;' ).join( '&' )
 		return str
 	}
-	var selected= FPoly(
-	[	function(){
-			if( doc.selection ){
-				var sel= doc.selection
+
+	var selected= FPoly
+	(	function(){
+			if( document.selection ){
+				var sel= document.selection
 				return sel.createRange()
 			} else {
-				var sel= win.getSelection()
+				var sel= window.getSelection()
 				return sel.rangeCount
 				?	sel.getRangeAt(0)
 				:	null
@@ -46,12 +33,13 @@ this.factory= function( el ){
 	,	function( range ){
 			if( range.select ) range.select()
 			else {
-				var sel= win.getSelection()
+				var sel= window.getSelection()
 		        sel.removeAllRanges()
 		        sel.addRange( range )
 		    }
 		}
-	])
+	)
+
     var traverse= function( root, handler ){
     	if( handler( root ) ) return true
     	var child= root.firstChild
@@ -61,6 +49,7 @@ this.factory= function( el ){
     	}
     	return false
     }
+
     var nodeLength= function( node ){
     	switch( node.nodeName ){
     		case '#text': return node.nodeValue.length
@@ -68,9 +57,9 @@ this.factory= function( el ){
     		default: return 0
     	}
     }
-	var pos= FPoly(
-	[	function(){
-			var bod= body()
+
+	var pos= FPoly
+	(	function(){
 			var range= selected()
 			if( !range ) return null
 
@@ -87,7 +76,7 @@ this.factory= function( el ){
 	            offset= 0
 	        }
 
-	        var found= traverse( body(), function( node ){
+	        var found= traverse( editor, function( node ){
 	        	if( node === target ) return true
 	        	offset+= nodeLength( node )
 	        });
@@ -96,7 +85,7 @@ this.factory= function( el ){
 		}
 	,	function( offset ){
 			if( pos === null ) return
-	        var target= body();
+	        var target= editor;
 
 			if( target.createTextRange ){
 				var range= target.createTextRange()
@@ -112,7 +101,7 @@ this.factory= function( el ){
 	            offset-= length;
 	        })
 
-			var range= doc.createRange()
+			var range= document.createRange()
 			if( target.nodeName === 'BR' ){
 				range.setEndAfter( target )
 				range.setStartAfter( target )
@@ -124,44 +113,45 @@ this.factory= function( el ){
 
 	        selected( range )
 	    }
-	])
+	)
+
 	var normalize= function(){
-		var bod= body()
 
 		Opera_Hack:
-		var brs= bod.getElementsByTagName( 'br' )
+		var brs= editor.getElementsByTagName( 'br' )
 		for( var i= 0; i < brs.length; ++i ){
 			var br= brs[i]
 			var prev= br.previousSibling
 			if( prev && prev.nodeName !== 'BR' ) continue
-			br.parentNode.insertBefore( doc.createTextNode( '' ), br )
+			br.parentNode.insertBefore( document.createTextNode( '' ), br )
 		}
 
 		WebKit_Hack:
-		var childLength= bod.childNodes.length
+		var childLength= editor.childNodes.length
 		if( childLength ){
-			var lastChild= bod.childNodes[ childLength - 1 ]
-			if( lastChild.nodeName !== 'BR' ) bod.appendChild( doc.createElement( 'br' ) )
+			var lastChild= editor.childNodes[ childLength - 1 ]
+			if( lastChild.nodeName !== 'BR' ) editor.appendChild( document.createElement( 'br' ) )
 		}
 
 	}
+
 	var htmlLast
 	var highlight= FTrottler( 40, function(){
-		var htmlNew= body().innerHTML
+		var htmlNew= editor.innerHTML
 		if( htmlNew === htmlLast ) return
-		htmlNew= HLight.lang[ lang ]( html2text( htmlNew ) )
+		var langContent= HLight.lang[ lang ] || HLight.lang.text
+		var textNew= html2text( htmlNew )
+		input.value= textNew
+		htmlNew= langContent( textNew )
 		input.value= htmlNew
 		var p= pos()
-		body().innerHTML= htmlNew
-		htmlLast= body().innerHTML
+		editor.innerHTML= htmlNew
+		htmlLast= editor.innerHTML
 		normalize()
 		pos( p )
-
-		val= Math.max( 100, doc.documentElement.scrollHeight ) + 'px'
-		if( editor.style.height !== val ) editor.style.height= val
 	})
 	highlight()
-	setTimeout( highlight, 1000 )
+
 	var observe= function( node, event, handler ){
 		if( node.attachEvent ){
 			node.attachEvent( 'on' + event, handler )
@@ -169,7 +159,8 @@ this.factory= function( el ){
 		}
 		node.addEventListener( event, handler, false )
 	}
-	observe( doc, 'keypress', function( evt ){
+
+	observe( editor, 'keypress', function( evt ){
 		if( !evt ) evt= event
 		switch( evt.keyCode ){
 			case 13:
@@ -179,7 +170,7 @@ this.factory= function( el ){
 					evt.returnValue= false
 				} else {
 					range.deleteContents()
-					var br= doc.createElement( 'br' )
+					var br= document.createElement( 'br' )
 					range.insertNode( br )
 					range.selectNode( br )
 					evt.preventDefault()
@@ -190,25 +181,12 @@ this.factory= function( el ){
 		}
 		highlight()
 	})
-	observe( doc, 'keyup', function( evt ){
+
+	observe( editor, 'keyup', function( evt ){
 		if( !evt ) evt= event
 		switch( evt.keyCode ){
 		}
-		//highlight()
+		highlight()
 	})
-}
+
 })
-
-/*
-
-маркдаун:
-код
-
-
-яваскрипт:
-комментарии
-строки
-регулярки
-идентификаторы
-
-*/

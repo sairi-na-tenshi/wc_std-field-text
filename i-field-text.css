@@ -3,7 +3,6 @@ i\:field-text {
 	border: 1px solid #bbb;
 	background: white;
 	color: black;
-	padding: 2%;
 
    	-moz-border-radius: 3px;
 	border-radius: 3px;
@@ -25,11 +24,4 @@ i\:field-text textarea {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-}
-
-i\:field-text iframe {
-	display: block;
-	width: 100%;
-	border: none;
-	height: 100px;
 }
