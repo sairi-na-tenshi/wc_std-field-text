@@ -1,8 +1,8 @@
-CComponent( 'i:field-text', function( el ){
+CComponent( 'std:field-text', function( el ){
 	var lang= CHiqus( el.className ).get( 'lang' )
 	var input= el.getElementsByTagName( 'textarea' )[0]
 	input.style.display= 'none'
-	var editor= document.createElement( 'i:field-text-content' )
+	var editor= document.createElement( 'std:field-text-content' )
 	editor.innerHTML= input.value
 	editor.contentEditable= true
 	el.appendChild( editor )

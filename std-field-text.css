@@ -1,4 +1,4 @@
-i\:field-text {
+std\:field-text {
 	display: block;
 	border: 1px solid #bbb;
 	background: white;
@@ -13,7 +13,7 @@ i\:field-text {
 
 }
 
-i\:field-text textarea {
+std\:field-text textarea {
 	display: block;
 	width: 100%;
 	border-width: 0;
