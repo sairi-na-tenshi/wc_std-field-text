@@ -15,7 +15,7 @@ this.factory= function( el ){
 		styles.push( '<link rel="stylesheet" href="' + sheets[i].href + '" />' )
 	}
 	doc.open()
-	doc.write( '<!doctype html><html class="i-root-editor"><head>' + styles.join('') + '<body>' + input.value )
+	doc.write( '<!doctype html><html class="i-field-text-content"><head>' + styles.join('') + '<body>' + input.value )
 	doc.close()
 	doc.designMode= 'on'
 	var body= FPoly([ function(){
