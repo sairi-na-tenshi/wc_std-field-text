@@ -1,0 +1,15 @@
+fieldset {
+	border: 1px solid #bbb;
+	padding: 2% 5%;
+	background: #eee;
+	color: black;
+	margin: 1em 0;
+
+   	-moz-border-radius: 5px;
+	border-radius: 5px;
+
+	-webkit-box-shadow: 2px 2px 2px #eee;
+	-moz-box-shadow: 2px 2px 4px #ddd;
+	abox-shadow: 2px 2px 4px #ddd;
+
+}

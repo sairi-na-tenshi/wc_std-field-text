@@ -1,0 +1,26 @@
+i\:field-string {
+	display: block;
+	border: 1px solid #bbb;
+	background: white;
+	color: black;
+
+   	-moz-border-radius: 3px;
+	border-radius: 3px;
+
+	-webkit-box-shadow: 0px 0px 4px #bbb;
+	-moz-box-shadow: 0px 0px 4px #bbb;
+	box-shadow: 0px 0px 4px #bbb;
+}
+
+i\:field-string input {
+	display: block;
+	width: 100%;
+	font-family:  monospace;
+	padding: 5px;
+	border-width: 0;
+	line-height: 1;
+
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
