@@ -3,20 +3,9 @@ CComponent( 'std:field-text', function( el ){
 	var input= el.getElementsByTagName( 'textarea' )[0]
 	input.style.display= 'none'
 	var editor= document.createElement( 'std:field-text-content' )
-	editor.innerHTML= input.value
+	editor.innerHTML= HLight.plainText( input.value )
 	editor.contentEditable= true
 	el.appendChild( editor )
-
-	var html2text= function( str ){
-		noLFCR:     str= str.split( /[\n\r]+/ ).join( '' )
-		BR2CR:      str= str.replace( /<br ?\/?>/gi, '\n' )
-		stripTags:  str= str.split( /<.*?>/ ).join( '' )
-		decodeNBSP: str= str.split( '&nbsp;' ).join( ' ' )
-		decodeGT:   str= str.split( '&gt;' ).join( '>' )
-		decodeLT:   str= str.split( '&lt;' ).join( '<' )
-		decodeAMP:  str= str.split( '&amp;' ).join( '&' )
-		return str
-	}
 
 	var selected= FPoly
 	(	function(){
@@ -65,7 +54,7 @@ CComponent( 'std:field-text', function( el ){
 
 			if( range.move ){
                 range.moveStart( 'character', -10000 )
-                return html2text( range.htmlText ).length
+                return HLight.revert( range.htmlText ).length
 			}
 
 	        var target= range.endContainer;
@@ -117,14 +106,14 @@ CComponent( 'std:field-text', function( el ){
 
 	var normalize= function(){
 
-		Opera_Hack:
+		/*Opera_Hack:
 		var brs= editor.getElementsByTagName( 'br' )
 		for( var i= 0; i < brs.length; ++i ){
 			var br= brs[i]
 			var prev= br.previousSibling
 			if( prev && prev.nodeName !== 'BR' ) continue
 			br.parentNode.insertBefore( document.createTextNode( '' ), br )
-		}
+		}*/
 
 		WebKit_Hack:
 		var childLength= editor.childNodes.length
@@ -139,15 +128,16 @@ CComponent( 'std:field-text', function( el ){
 	var highlight= FTrottler( 40, function(){
 		var htmlNew= editor.innerHTML
 		if( htmlNew === htmlLast ) return
-		var langContent= HLight.lang[ lang ] || HLight.lang.text
-		var textNew= html2text( htmlNew )
+		var textNew= HLight.revert( htmlNew ).replace( /\n\r$/, '' )
 		input.value= textNew
-		htmlNew= langContent( textNew )
+		var parse= FParser.lang[ lang ]
+		var model= parse ? parse( textNew ) : textNew
+		htmlNew= HLight.serialize( model ).split( '\r' ).join( '' ) + '<br />'
 		input.value= htmlNew
 		var p= pos()
 		editor.innerHTML= htmlNew
 		htmlLast= editor.innerHTML
-		normalize()
+		/*normalize()*/
 		pos( p )
 	})
 	highlight()
